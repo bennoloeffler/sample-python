@@ -2,10 +2,12 @@
 from dotenv import load_dotenv
 from itertools import zip_longest
 
+import hmac
 import streamlit as st
 from streamlit_chat import message
+from password import check_password
 
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.schema import (
     SystemMessage,
     HumanMessage,
@@ -18,6 +20,10 @@ load_dotenv()
 # Set streamlit page configuration
 st.set_page_config(page_title="V&S ChatBot")
 st.title("V&S ChatBot")
+
+
+if not check_password():
+    st.stop()
 
 # Initialize session state variables
 if 'generated' not in st.session_state:
@@ -32,9 +38,8 @@ if 'entered_prompt' not in st.session_state:
 # Initialize the ChatOpenAI model
 chat = ChatOpenAI(
     temperature=0.5,
-    model_name="gpt-4-turbo"
+    model="gpt-4-turbo"
 )
-
 
 def build_message_list():
     """
@@ -64,7 +69,7 @@ def generate_response():
     zipped_messages = build_message_list()
 
     # Generate response using the chat model
-    ai_response = chat(zipped_messages)
+    ai_response = chat.invoke(zipped_messages)
 
     return ai_response.content
 
@@ -98,13 +103,13 @@ if st.session_state.entered_prompt != "":
 if st.session_state['generated']:
     for i in range(len(st.session_state['generated'])-1, -1, -1):
         # Display AI response
-        message(st.session_state["generated"][i], key=str(i))
+        message(st.session_state["generated"][i], key=str(i), avatar_style="icons")
         # Display user message
         message(st.session_state['past'][i],
-                is_user=True, key=str(i) + '_user')
+                is_user=True, key=str(i) + '_user', avatar_style="lorelei-neutral")
 
 
 # Add credit
 st.markdown("""
 ---
-Made with 🤖 by [V&S](https://v-und-s.de/)""")
+Made by [V&S](https://v-und-s.de/)""")
