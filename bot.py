@@ -32,7 +32,7 @@ if 'entered_prompt' not in st.session_state:
 # Initialize the ChatOpenAI model
 chat = ChatOpenAI(
     temperature=0.5,
-    model_name="gpt-3.5-turbo"
+    model_name="gpt-4-turbo"
 )
 
 
@@ -105,6 +105,6 @@ if st.session_state['generated']:
 
 
 # Add credit
-st.markdown("""
----
-Made with 🤖 by [V&S](https://v-und-s.de/)""")
+#st.markdown("""
+#---
+#Made with 🤖 by [V&S](https://v-und-s.de/)""")
