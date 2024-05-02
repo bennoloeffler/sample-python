@@ -1,1 +1,1 @@
-web: streamlit run server.py
+web: streamlit run bot.py --server.headless=true
