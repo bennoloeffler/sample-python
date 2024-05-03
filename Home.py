@@ -13,6 +13,7 @@ st.write("""
 Here you find the V&S AI Applications
 
 - **Chat with the bot**: Engage in interactive conversations with the LLM.
+- **Chat with the bot streaming**: Interactive streaming conversations with the LLM.
 
 """)
 

@@ -2,7 +2,6 @@
 from dotenv import load_dotenv
 from itertools import zip_longest
 
-import hmac
 import streamlit as st
 from streamlit_chat import message
 from password import check_password
