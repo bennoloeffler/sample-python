@@ -14,6 +14,9 @@ from langchain.schema import (
     AIMessage
 )
 
+# Load environment variables
+load_dotenv()
+
 # Set streamlit page configuration
 st.set_page_config(page_title="V&S ChatBot")
 st.title("V&S ChatBot")
@@ -21,7 +24,7 @@ st.title("V&S ChatBot")
 class Chatbot:
 
     def __init__(self):
-        pass
+        self.setup_chat()
 
     def setup_chat(self):
         # Initialize session state variables
@@ -39,10 +42,6 @@ class Chatbot:
             temperature=0.5,
             model="gpt-4-turbo"
         )
-
-#        llm = ChatOpenAI(model_name=self.openai_model, temperature=0, streaming=True)
-#        chain = ConversationChain(llm=llm, verbose=True)
-#        return chain
 
     def build_message_list(self):
         """
@@ -86,21 +85,16 @@ class Chatbot:
 
 
     def main(self):
-        # Load environment variables
-        load_dotenv()
-
         if not check_password():
             st.stop()
-
-        self.setup_chat()
 
         # Create a text input for user
         st.text_input('YOU: ', key='prompt_input', on_change=self.submit)
 
-
         if st.session_state.entered_prompt != "":
             # Get user query
             user_query = st.session_state.entered_prompt
+            st.session_state.entered_prompt = ""
 
             # Append user query to past queries
             st.session_state.past.append(user_query)
@@ -125,22 +119,6 @@ class Chatbot:
         st.markdown("""
         ---
         Made by [V&S](https://v-und-s.de/)""")
-
-
-
-
-#        chain = self.setup_chain()
-#        user_query = st.chat_input(placeholder="Ask me anything!")
-#        if user_query:
-#            utils.display_msg(user_query, 'user')
-#            with st.chat_message("assistant"):
-#                st_cb = StreamHandler(st.empty())
-#                result = chain.invoke(
-#                    {"input":user_query},
-#                    {"callbacks": [st_cb]}
-#                )
-#                response = result["response"]
-#                st.session_state.messages.append({"role": "assistant", "content": response})
 
 
 if __name__ == "__main__":
