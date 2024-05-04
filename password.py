@@ -7,7 +7,7 @@ def check_password():
 
     def login_form():
         """Form with widgets to collect user information"""
-        st.header("Login (try test@test)")
+        st.header("Login")#(try test@test)
         with st.form("Credentials"):
             st.text_input("Username", key="username")
             st.text_input("Password", type="password", key="password")
