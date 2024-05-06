@@ -1,6 +1,7 @@
 import os
 import xml.etree.ElementTree as ET
 import sqlite3
+import tempfile
 from typing import IO
 
 import streamlit as st
@@ -332,6 +333,7 @@ class AnalyzeXMLPage(Page):
     FILE_UPLOADED = 'file_uploaded'
     XML_ANALYZED = 'xml_analyzed'
     DB_CREATED = 'db_created'
+    SQL_CREATED = 'sql_created'
     DB_INSERTED = 'db_inserted'
 
     def __init__(self):
@@ -388,7 +390,12 @@ class AnalyzeXMLPage(Page):
             to_file = st.sidebar.checkbox("Write to file")
 
         if statements and st.sidebar.button("Create SQL Database", use_container_width=True):
-            db = SQLGlobals(("file:///Data/import.sql" if to_file else "sqlite:///Data/import.db"), checked)
+            dir = tempfile.TemporaryDirectory().name
+            os.makedirs(dir)
+            url = (f"file:///{dir}/import.sql" if to_file else f"sqlite:///{dir}/import.db")
+            print(f'Temporary file: {url}')
+
+            db = SQLGlobals(url, checked)
             db.begin()
             for stmt in statements:
                 try:
@@ -398,19 +405,27 @@ class AnalyzeXMLPage(Page):
                     raise
 
             db.end()
-            self.set_session_state(self.DB_CREATED, True)
-            status_view.checkbox("DB structure created", value=True, disabled=True)
-    
+
+            if not to_file:
+                st.session_state["DB"] = url
+                self.set_session_state(self.DB_CREATED, url)
+                status_view.checkbox("DB structure created", value=True, disabled=True)
+
             tree = ET.parse(file_uploaded)
             root = tree.getroot()
             db.begin()
             recursive_insert_sql_from_xml(root, root.tag, db)
             db.end()
-            self.set_session_state(self.DB_INSERTED, True)
-            status_view.checkbox("DB data inserted", value=True, disabled=True)
+            if not to_file:
+                self.set_session_state(self.DB_INSERTED, True)
+                status_view.checkbox("DB data inserted", value=True, disabled=True)
+            else:
+                self.set_session_state(self.SQL_CREATED, url)
 
-            if to_file:
-                with open('Data/import.sql') as f:
+            sql_file = self.get_session_state(self.SQL_CREATED)
+
+            if sql_file:
+                with open(sql_file[8:]) as f:
                     st.sidebar.download_button('Download SQL file',
                                                 data=f, 
                                                 file_name="statements.sql",
@@ -418,8 +433,10 @@ class AnalyzeXMLPage(Page):
                                                 use_container_width=True)
 
         else:
-            status_view.checkbox("DB structure created", value=self.get_session_state(self.DB_CREATED), disabled=True)
-            status_view.checkbox("DB data inserted", value=self.get_session_state(self.DB_INSERTED), disabled=True)
+            status_view.checkbox("DB structure created", disabled=True,
+                                 value=(self.get_session_state(self.DB_CREATED) is not None))
+            status_view.checkbox("DB data inserted", disabled=True,
+                                 value=(self.get_session_state(self.DB_INSERTED) is not None))
 
 if __name__ == "__main__":
     obj = AnalyzeXMLPage()

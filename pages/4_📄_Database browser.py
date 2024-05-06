@@ -22,17 +22,18 @@ class SQLBrowserPage(Page):
         if not check_password():
             st.stop()
 
-        db = sqlite3.connect("Data/import.db")
-        cursor = db.cursor()
-        result = cursor.execute("SELECT tbl_name FROM sqlite_master WHERE type='table'").fetchall()
-        tables = list(map(lambda x: x[0], result))
+        if "DB" in st.session_state:
+            db = sqlite3.connect(st.session_state["DB"][10:])
+            cursor = db.cursor()
+            result = cursor.execute("SELECT tbl_name FROM sqlite_master WHERE type='table'").fetchall()
+            tables = list(map(lambda x: x[0], result))
 
-        table = st.selectbox("Select SQL table:", options=tables)
+            table = st.selectbox("Select SQL table:", options=tables)
 
-        if table:
-            sql = f'SELECT * FROM "{table}"'
-            df = pd.read_sql_query(sql, db)
-            st.dataframe(df, use_container_width=True)
+            if table:
+                sql = f'SELECT * FROM "{table}"'
+                df = pd.read_sql_query(sql, db)
+                st.dataframe(df, use_container_width=True)
 
 if __name__ == "__main__":
     obj = SQLBrowserPage()
