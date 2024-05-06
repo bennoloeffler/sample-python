@@ -10,22 +10,10 @@ from langchain.schema import (
     AIMessage
 )
 
-class ChatBase:
-
-    GENERATED = 'generated'
-    PAST = 'past'
-    ENTERED_PROMPT = 'entered_prompt'
-
-    bot_avatar = "icons"
-    user_avatar = "lorelei-neutral"
-    system_prompt = "You are a helpful AI assistant talking with a human. If you do not know an answer, just say 'I don't know', do not make up an answer."
+class Page:
 
     def __init__(self, prefix):
         self.prefix = prefix
-        # Initialize session state variables
-        self.set_session_state_if_not_set(self.GENERATED, [])  # Store AI generated responses
-        self.set_session_state_if_not_set(self.PAST, [])  # Store past user inputs
-        self.set_session_state_if_not_set(self.ENTERED_PROMPT, "")  # Store the latest user input
 
 
     def get_session_key_name(self, key):
@@ -33,27 +21,57 @@ class ChatBase:
 
 
     def get_session_state(self, key):
-      return st.session_state[self.get_session_key_name(key)]
+        name = self.get_session_key_name(key)
+        if name in st.session_state:
+            return st.session_state[name]
+        else:
+            return None
 
 
     def has_session_state(self, key):
         return self.get_session_key_name(key) in st.session_state
 
 
+    def del_session_state(self, key):
+        del st.session_state[self.get_session_key_name(key)]
+
+
     def set_session_state_if_not_set(self, key, value):
         name = self.get_session_key_name(key)
         if name not in st.session_state:
-            print(f'Set {name} = {value}')
+            # print(f'Set {name} = {value}')
             st.session_state[name] = value
         else:
             old_value = st.session_state[name]
-            print(f'Variable {name} already set to {old_value} ignore new value {value}')
+            # print(f'Variable {name} already set to {old_value} ignore new value {value}')
 
 
     def set_session_state(self, key, value):
       name = self.get_session_key_name(key)
-      print(f'Set {name} = {value}')
+    #   print(f'Set {name} = {value}')
       st.session_state[name] = value
+
+
+
+class ChatBase(Page):
+
+    GENERATED = 'generated'
+    PAST = 'past'
+    ENTERED_PROMPT = 'entered_prompt'
+    SYSTEM_PROMPT = 'system_prompt'
+
+    BOT_AVATAR = "icons"
+    USER_AVATAR = "lorelei-neutral"
+    DEFAULT_PROMPT = "You are a helpful AI assistant talking with a human. If you do not know an answer, just say 'I don't know', do not make up an answer."
+
+    def __init__(self, prefix):
+        super().__init__(prefix)
+
+        # Initialize session state variables
+        self.set_session_state_if_not_set(self.GENERATED, [])  # Store AI generated responses
+        self.set_session_state_if_not_set(self.PAST, [])  # Store past user inputs
+        self.set_session_state_if_not_set(self.ENTERED_PROMPT, "")  # Store the latest user input
+        self.set_session_state_if_not_set(self.SYSTEM_PROMPT, self.DEFAULT_PROMPT)  # Store the default system prompt
 
 
     def setup_llm(self):
@@ -61,13 +79,13 @@ class ChatBase:
 
 
     def set_system_prompt(self, prompt):
-        self.system_prompt = prompt 
+        self.set_session_state(self.SYSTEM_PROMPT, prompt)
 
 
     # Build a list of messages including system, human and AI messages.
     def build_message_list(self) -> list:
         # Start zipped_messages with the SystemMessage
-        zipped_messages = [SystemMessage(content=self.system_prompt)]
+        zipped_messages = [SystemMessage(content=self.get_session_state(self.SYSTEM_PROMPT))]
 
         # Zip together the past and generated messages
         for human_msg, ai_msg in zip_longest(self.get_session_state(self.PAST), 
@@ -83,11 +101,11 @@ class ChatBase:
 
 
     def print_user_message(self, text, key):
-        message(text, is_user=True, key=key + '_user', avatar_style=self.user_avatar)
+        message(text, is_user=True, key=key + '_user', avatar_style=self.USER_AVATAR)
 
 
     def print_ai_message(self, text, key):
-        message(text, key=key, avatar_style=self.bot_avatar)
+        message(text, key=key, avatar_style=self.BOT_AVATAR)
 
 
     # Display the chat history
@@ -143,6 +161,10 @@ class ChatBase:
         self.set_session_state(self.GENERATED, [])
         self.set_session_state(self.PAST, [])
         self.set_session_state(self.ENTERED_PROMPT, "")
+
+
+    def reset_prompt(self):
+        self.set_session_state(self.SYSTEM_PROMPT, self.DEFAULT_PROMPT)
 
 
     def handle_entered_prompt(self, entered_prompt):

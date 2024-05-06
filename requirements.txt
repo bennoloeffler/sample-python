@@ -1,6 +1,7 @@
 streamlit
 streamlit-chat
 streamlit-extras
+streamlit-tree-select
 python-dotenv
 langchain
 langchain-openai
