@@ -1,1 +1,8 @@
 .venv
+Data
+database
+export
+test_data
+tmp
+dbs
+__pycache__
