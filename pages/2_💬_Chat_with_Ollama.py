@@ -3,14 +3,15 @@ from dotenv import load_dotenv
 from typing import Any
 
 import streamlit as st
-from password import check_password
-from util import ChatBase
+from streamlit_extras.app_logo import add_logo
 
 from langchain_openai import ChatOpenAI
 from langchain_community.chat_models import ChatOllama
 from langchain_core.language_models.chat_models import BaseChatModel
 
-from streamlit_extras.app_logo import add_logo
+from password import check_password
+from pageutil import ChatBase
+
 
 # Load environment variables
 load_dotenv()
