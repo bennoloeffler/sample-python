@@ -1,11 +1,13 @@
 # Import required libraries
 from typing import Any
-import streamlit as st
 from dotenv import load_dotenv
-from password import check_password
+
 from langchain_openai import ChatOpenAI
+
+import streamlit as st
 from streamlit_extras.app_logo import add_logo
 
+from password import check_password
 from pageutil import ChatBase
 
 
