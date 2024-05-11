@@ -5,7 +5,4 @@ streamlit-tree-select
 python-dotenv
 langchain
 langchain-openai
-chromadb
-ipykernel
-jupyter
 sqlite-vss
