@@ -87,7 +87,7 @@ class OpenAIChatBot(ChatBase):
             st.selectbox("Model", options = models, index = idx,
                                 key = self.get_session_key_name(self.MODEL_NAME_INPUT),
                                 on_change = self.model_changed)
-            if st.button("Clear chat"):
+            if st.button("Clear chat", use_container_width=True):
                 self.clear_history()
                 st.rerun()
 
