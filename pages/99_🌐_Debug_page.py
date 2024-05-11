@@ -2,7 +2,7 @@ import os
 import streamlit as st
 from streamlit_extras.app_logo import add_logo
 
-from password import check_password
+from password import check_password, is_admin
 
 
 st.set_page_config(page_title="Debug page", layout="wide", page_icon='🌐')
@@ -14,6 +14,9 @@ st.title("Debug page")
 if not check_password():
     st.stop()
 
+if not is_admin():
+    st.error("Access denied")
+    st.stop()
 
 st.subheader("Session Data:")
 ses = list(map(lambda i: {"key": i[0], "value": i[1]}, st.session_state.to_dict().items()))
