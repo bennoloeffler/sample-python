@@ -9,7 +9,7 @@ from langchain_openai import ChatOpenAI
 from langchain_community.chat_models import ChatOllama
 from langchain_core.language_models.chat_models import BaseChatModel
 
-from password import check_password
+from password import check_password, is_admin
 from pageutil import ChatBase
 
 
@@ -21,6 +21,14 @@ st.set_page_config(page_title="V&S Ollama ChatBot", page_icon="💬")
 st.title("V&S Ollama ChatBot")
 with st.sidebar:
     add_logo("img/v-und-s.png")
+
+if not check_password():
+    st.stop()
+
+if not is_admin():
+    st.error("Access denied")
+    st.stop()
+
 
 class OllamaChatBot(ChatBase):
 
@@ -59,9 +67,6 @@ class OllamaChatBot(ChatBase):
 
 
     def main(self):
-        if not check_password():
-            st.stop()
-
         # print(f'Ollama Model: {model}')
         models = self.get_model_names()
         idx = models.index(self.get_model())
@@ -71,7 +76,7 @@ class OllamaChatBot(ChatBase):
             st.selectbox("Model", options=models, index=idx,
                          key=self.get_session_key_name(self.MODEL_NAME_INPUT),
                          on_change=self.model_changed)
-            if st.button("Clear chat"):
+            if st.button("Clear chat", use_container_width=True):
                 self.clear_history()
                 st.rerun()
 
