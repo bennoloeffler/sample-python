@@ -23,7 +23,9 @@ ses = list(map(lambda i: {"key": i[0], "value": i[1]}, st.session_state.to_dict(
 st.dataframe(ses, use_container_width=True)
 
 st.subheader("Environment:")
-env = list(map(lambda i: {"key": i, "value": os.getenv(i)}, filter(lambda i: not i.endswith("_KEY"), sorted(os.environ))))
+env = list(map(lambda i: {"key": i, "value": os.getenv(i)},
+               filter(lambda i: not i.endswith("_KEY") and not i.startswith("SECRET"),
+                      sorted(os.environ))))
 st.dataframe(env, use_container_width=True)
 
 st.subheader("Config Data:")
