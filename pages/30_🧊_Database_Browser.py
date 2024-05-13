@@ -19,6 +19,8 @@ with st.sidebar:
     add_logo("img/v-und-s.png")
 
 DBNAME = "dbname"
+TABLENAME = "tablename"
+STATEMENT = "statement"
 
 
 @st.experimental_dialog("Confirm your selection")
@@ -58,12 +60,24 @@ class SQLBrowserPage(Page):
             result = cursor.execute("SELECT tbl_name FROM sqlite_master WHERE type='table'").fetchall()
             tables = list(map(lambda x: x[0], result))
 
-            table = st.selectbox("Select SQL table:", options=tables)
+            idx = tables.index(self.get_session_state(TABLENAME)) if self.has_session_state(TABLENAME) else 0
+            table = st.selectbox("Select SQL table:", options=tables, index=idx)
+            if table and table != self.get_session_state(TABLENAME):
+                self.set_session_state(TABLENAME, table)
+                stmt = f"SELECT * FROM {table}"
+                self.set_session_state(STATEMENT, stmt)
 
-            if table:
-                sql = f'SELECT * FROM "{table}"'
-                df = pd.read_sql_query(sql, db)
+            def_stmt = self.get_session_state(STATEMENT)
+
+            stmt = st.text_input("SQL command:", 
+                                 value=def_stmt,
+                                 placeholder=def_stmt)
+
+            if st.button("Execute statement"):
+                self.set_session_state(STATEMENT, stmt)
+                df = pd.read_sql_query(stmt, db)
                 st.dataframe(df, use_container_width=True)
+            
 
 if __name__ == "__main__":
     obj = SQLBrowserPage()
