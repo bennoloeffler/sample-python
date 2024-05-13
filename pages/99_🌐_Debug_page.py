@@ -19,7 +19,7 @@ if not is_admin():
     st.stop()
 
 st.subheader("Session Data:")
-ses = list(map(lambda i: {"key": i[0], "value": i[1]}, st.session_state.to_dict().items()))
+ses = list(map(lambda i: {"key": i[0], "value": str(i[1])}, st.session_state.to_dict().items()))
 st.dataframe(ses, use_container_width=True)
 
 st.subheader("Environment:")
@@ -31,7 +31,7 @@ st.dataframe(env, use_container_width=True)
 st.subheader("Config Data:")
 conf = list(map(lambda i: {
     "key": i.key,
-    "value": i.value,
+    "value": str(i.value),
     "default": i.is_default},
     st.config.get_config_options().values()))
 st.dataframe(conf, use_container_width=True)
