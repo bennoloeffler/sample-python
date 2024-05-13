@@ -1,6 +1,7 @@
 # Import required libraries
 import hmac
 import os
+import json
 from dotenv import load_dotenv
 import streamlit as st
 
@@ -30,15 +31,17 @@ def check_password():
 
     def password_entered():
         """Checks whether a password entered by the user is correct."""
-        if st.session_state["username"] in st.secrets[
-            "passwords"
-        ] and hmac.compare_digest(
-            st.session_state["password"],
-            st.secrets.passwords[st.session_state["username"]],
-        ):
+
+        secret_user = os.getenv('SECRET.USER')
+        secrets = json.loads(secret_user)
+        user = st.session_state["username"]
+        passwd = st.session_state["password"]
+        passwds = st.secrets["passwords"]
+        if (user in passwds and hmac.compare_digest(passwd, passwds[user])) or \
+           (user in secrets and hmac.compare_digest(passwd, secrets[user])):
             st.session_state["password_correct"] = True
             st.balloons()
-            st.session_state["secrets.user"] = st.session_state["username"]
+            st.session_state["secrets.user"] = user
             del st.session_state["password"]  # Don't store the username or password.
             del st.session_state["username"]
         else:
