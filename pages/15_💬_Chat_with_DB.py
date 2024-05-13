@@ -81,17 +81,13 @@ class DBChatBot(ChatBase):
     @st.spinner('Analyzing database..')
     def request_ai_response(self, messages) -> list[Any] | str:
         # Generate response using the chat model
-        ai_response = self.agent_executor.invoke(messages)
-        return ai_response['output']
+        # ai_response = self.agent_executor.invoke(messages)
+        # return ai_response['output']
 
-        # # create temporary container to stream answer in
-        # msg = st.empty()
-        # with msg.container():
-        #   ai_response = st.write_stream(stream)
-        #   # clear the answer
-        #   msg.empty()
+        with self.popover:
+          ai_response = st.write_stream(self.agent_executor.stream(messages))
 
-        # return ai_response[len(ai_response)-1]['output']
+        return ai_response[len(ai_response)-1]['output']
 
 
     def main(self):
@@ -119,13 +115,15 @@ class DBChatBot(ChatBase):
                 self.set_session_state(self.DATABASE, dbname)
                 self.setup_llm()
 
-            if st.button("Clear chat"):
+            if st.button("Clear chat", use_container_width=True):
                 self.clear_history()
                 st.rerun()
 
             # Add credit
             st.divider()
             st.markdown("Made by [V&S](https://v-und-s.de/)")
+
+        self.popover = st.popover("Agent analyzing info...")
 
         self.print_chat()
 
