@@ -23,8 +23,8 @@ def check_password():
         """Form with widgets to collect user information"""
         st.header("Login")#(try test@test)
         with st.form("Credentials"):
-            user = os.getenv("USER.NAME", None)
-            passwd = os.getenv("USER.PASS", None)
+            user = os.getenv("SECRET_USER_NAME", None)
+            passwd = os.getenv("SECRET_USER_PASS", None)
             st.text_input("Username", key="username", value=user)
             st.text_input("Password", type="password", key="password", value=passwd)
             st.form_submit_button("Log in", on_click=password_entered)
@@ -32,7 +32,7 @@ def check_password():
     def password_entered():
         """Checks whether a password entered by the user is correct."""
 
-        secret_user = os.getenv('SECRET.USER')
+        secret_user = os.getenv('SECRET_PASSWORDS', '{}')
         secrets = json.loads(secret_user)
         user = st.session_state["username"]
         passwd = st.session_state["password"]
